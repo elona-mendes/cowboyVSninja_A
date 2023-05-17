@@ -23,11 +23,6 @@ namespace ariel{
                 return this->numBalls;
             }
 
-            // Point::Point(double& xPnt, double& yPnt): xPoint(xPnt), yPoint(yPnt){
-            //     this->xPoint = xPnt;
-            //     this->yPoint = yPnt;
-            // }
-
             // If the cowboy is alive: "shoot" the enemy, 
             //-10 to enemy "hitPnt" and -1 to "numBalls". 
             void shoot(Character* chrctr);
