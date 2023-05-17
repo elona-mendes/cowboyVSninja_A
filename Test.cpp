@@ -81,195 +81,114 @@ TEST_SUITE("Characters constractors"){
     }
 }
 
+TEST_SUITE("Attack actions"){
 
-// TEST_CASE("Test play one turn after empty stack - Error (5)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+    TEST_CASE("Cowboy attack"){
 
-//     Game game(p1,p2);
-//     //if its stop, the two players cant play another turn because they havn't cards.
-//     for (int i=0;i<10;i++) {
-//         game.playTurn();
-//     } 
-//     // while (p1.stacksize()>0) {
-//     //     game.playTurn();
-//     // }
-//     CHECK_THROWS(game.playTurn());  // check that some exception is thrown
-// }
+        Point a(33, 44);
+        Cowboy *tom = new Cowboy("Tom", a);
+        OldNinja *sushi = new OldNinja("sushi", Point(1.3,3.5));
+        
+        CHECK(tom->hasboolets());
+        tom->shoot(sushi);
+        CHECK(tom->getNumBalls() == 5);
+        CHECK(sushi->getHitPoint() == 140);
 
-// TEST_CASE("Play two games at same time (6)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
-//     Player p3("Anna");
-//     Player p4("Dani");
+        for (int i = 5; i > 0; i--)
+        {
+            tom->shoot(sushi);
+        }
+        CHECK(tom->hasboolets() == false);
+        CHECK(tom->getNumBalls() == 0);
+        CHECK(sushi->getHitPoint() == 80);
 
-//     Game game1(p1,p2);
-//     Game game2(p3,p4);
-//     game1.playTurn();
-//     game2.playTurn();
-//     CHECK(p1.stacksize() < 25); 
-//     CHECK(p2.stacksize() < 25); 
-//     CHECK(p3.stacksize() < 25); 
-//     CHECK(p4.stacksize() < 25); 
-// }
+        tom->reload();
+        CHECK(tom->getNumBalls() == 6);
+        
+    }
 
-// TEST_CASE("Print last turn after one turn (7)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+    TEST_CASE("Ninja attack"){
+        Point b(1.3,3.5), c(2, 3);
+        TrainedNinja *nigiri = new TrainedNinja("nigiri", b);
+        YoungNinja *baget = new YoungNinja("baget", c);
 
-//     Game game(p1,p2);
-//     game.playTurn();
-//     //== 0 mean print succesfuly
-//     CHECK(game.printLastTurn() == 0);
-// }
+        Cowboy *tom = new Cowboy("Tom", Point(32.3,44));
 
-// TEST_CASE("Try to print last turn before play a turn - Error (8)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+        nigiri->slash(baget);
+        CHECK(baget->getHitPoint() == 60);
 
-//     Game game(p1,p2);
-//     //cant print last turn because havn't turns
-//     CHECK_THROWS(game.printLastTurn());
-// }
+        baget->slash(tom);
+        CHECK(tom->getHitPoint() == 110);
 
-// TEST_CASE("Try to printLog after 2 turn (9)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+        int i = 0;
+        // i avoid infinit loop in the case "move" or "distance" doesn't works.
+        while (baget->distance(tom) > 1 && i<15)
+        {
+           baget->move(tom);
+           i +=1;
+        }
+        CHECK(baget->getLocation().getX() != 2);
+        CHECK(baget->getLocation().getY() != 3);
+        CHECK(baget->distance(tom) < 1);
 
-//     Game game(p1,p2);
-//     game.playTurn();
-//     game.playTurn();
-//     //cant print last turn because havn't last turn
-//     CHECK(game.printLog() == 0);
-// }
+        baget->slash(tom);
+        CHECK(tom->getHitPoint() == 70);
+    }
+}
 
-// TEST_CASE("Try to printLog before play a turn - Error (10)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+TEST_SUITE("Team"){
+    TEST_CASE("Init team"){
+        Cowboy *tom = new Cowboy("Tom", Point(32.3,44));
+        YoungNinja *baget = new YoungNinja("baget", Point(1, 2));
 
-//     Game game(p1,p2);
-//     //cant print log because havn't last turns
-//     CHECK_THROWS(game.printLog());
-// }
+        CHECK_NOTHROW(Team team_A(tom)); 
+        CHECK_NOTHROW(Team team_B(baget));
 
-// TEST_CASE("Print the winner at the end of the game (11)"){
+    }
 
-//     Player p1("Alice");
-//     Player p2("Bob");
+    TEST_CASE("Add members"){
+        Cowboy *tom = new Cowboy("Tom", Point(32.3,44));
+        YoungNinja *baget1 = new YoungNinja("baget", Point(32.3,42));
+        YoungNinja *baget2 = new YoungNinja("baget", Point(12.3,42));
+        YoungNinja *baget3 = new YoungNinja("baget", Point(22.1,42));
+        YoungNinja *baget4 = new YoungNinja("baget", Point(32.3,42));
+        YoungNinja *baget5 = new YoungNinja("baget", Point(34.3,52));
+        YoungNinja *baget6 = new YoungNinja("baget", Point(35.3,42));
+        YoungNinja *baget7 = new YoungNinja("baget", Point(36.3,42));
+        YoungNinja *baget8 = new YoungNinja("baget", Point(37,78));
+        YoungNinja *baget9 = new YoungNinja("baget", Point(38,12));
 
-//     Game game(p1,p2);
-//     game.playAll();
+        Team team_A(tom);
+        CHECK_NOTHROW(team_A.add(new YoungNinja("Yogi", Point(62,57))));
+        team_A.add(new YoungNinja("Yogi", Point(64,57)));
+        team_A.add(baget1);
+        team_A.add(baget2);
+        team_A.add(baget3);
+        team_A.add(baget4);
+        team_A.add(baget5);
+        team_A.add(baget6);
+        team_A.add(baget7);
+        team_A.add(baget8);
+        
+        CHECK_THROWS(team_A.add(new YoungNinja("Yogi", Point(64,57))));
+    }
 
-//     CHECK( game.printWiner() == 0);
-// }
+    TEST_CASE("Attack"){
+        Cowboy *tom = new Cowboy("Tom", Point(1.3, 3));
+        YoungNinja *baget = new YoungNinja("baget", Point(1, 2));
 
-// TEST_CASE("Try to printWiner before the end of the game - Error (12)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
+        Team team_A(tom);
+        Team team_B(baget);
 
-//     Game game(p1,p2);
+        CHECK(team_A.stillAlive() == 1); 
+        CHECK(team_B.stillAlive() == 1);
 
-//     for (int i=0;i<5;i++) {
-//         game.playTurn();
-//     } 
-
-//     if(p1.stacksize()!=0){
-//         //cant print winner because the game not end 
-//         CHECK_THROWS(game.printWiner());
-//     }
-// }
-
-// TEST_CASE("Try to printWiner before the beginning of thr game - Error (13)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
-
-//     Game game(p1,p2);
-//     CHECK_THROWS(game.printWiner());
-// }
-
-// TEST_CASE("player try to play in 2 games at same time - Error (14)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
-
-//     Game game(p1,p2);
-//     Game game1(p1,p2);
-//     //the players cant play if there are in two games.
-//     CHECK_THROWS(game.playTurn());
-// }
-
-// TEST_CASE("check card without aquality (15)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
-
-//     Game game(p1,p2);
-//     game.playTurn();
-//     //when game make a turn the player take a card, and after that the last card that was played are in  player.card()
-//     if (p1.cardesTaken() < 6 && p2.cardesTaken() < 6){
-//         if(p1.card() > p2.card()){
-//         CHECK(p1.cardesTaken() == 2);
-//         CHECK(p2.cardesTaken() == 0);
-//         }
-//         else{
-//             CHECK(p1.cardesTaken() == 0);
-//             CHECK(p2.cardesTaken() == 2);
-//         }
-//     }
-// }
-
-// TEST_CASE("check set card (16)"){
-//     Player p1("Alice");
-//     Player p2("Bob");
-
-//     Game game(p1,p2);
-//     p1.setCrd(6);
-//     p2.setCrd(6);
-//     CHECK(p2.card() == p1.card());
-
-//     p2.setCrd(9);
-//     CHECK(p2.card() > p1.card());
-
-//     p1.setCrd(11);
-//     CHECK(p2.card() < p1.card());
-// }
-
-// TEST_CASE("check set card with duplicated values (17)"){
-//     //Each number has 4 options to be and no more, we will check that an error is 
-//     //issued for times.
-
-//     Player p1("Alice");
-//     Player p2("Bob");
-
-//     p1.setCrd(6);
-//     p1.setCrd(6);
-//     p1.setCrd(6);
-//     p1.setCrd(6);
-
-//     CHECK_THROWS(p1.setCrd(6));
-// }
-
-// TEST_CASE("check set card with errors values (18)"){
-
-//     Player p1("Alice");
-
-//     CHECK_THROWS(p1.setCrd(0));
-//     CHECK_THROWS(p1.setCrd(14));
-//     CHECK_THROWS(p1.setCrd(-2));
-// }
-
-// TEST_CASE("Init player without name, default player (19)"){
-//     Player p1;
-
-//     CHECK(p1.getName().compare("None"));
-//     CHECK(p1.stacksize() == 26);
-//     CHECK(p1.cardesTaken() == 0);
-//     CHECK(p1.getSumpnt() == 0);
-// }
-
-// TEST_CASE("Init game without players, default players (20)"){
-//     Game game;
-//     CHECK(game.getp1().getName().compare("None1"));
-//     CHECK(game.getp2().getName().compare("None2"));
-//     CHECK(game.getp1().stacksize() == 26);
-//     CHECK(game.getp1().cardesTaken() == 0);
-//     CHECK(game.getp1().getSumpnt() == 0);
-// }
+        while(team_A.stillAlive() > 0 && team_B.stillAlive() > 0){
+            team_A.attack(&team_B);
+            team_B.attack(&team_A);
+        }
+        CHECK(team_A.stillAlive() == 0); 
+        CHECK(team_B.stillAlive() == 1); 
+        CHECK_NOTHROW(Team team_B(baget));
+    }
+}
